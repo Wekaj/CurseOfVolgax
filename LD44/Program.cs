@@ -1,20 +1,12 @@
 ﻿using System;
 
-namespace LD44
-{
-    /// <summary>
-    /// The main class.
-    /// </summary>
-    public static class Program
-    {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+namespace LD44 {
+    public static class Program {
         [STAThread]
-        static void Main()
-        {
-            using (var game = new Game1())
+        static void Main() {
+            using (var game = new LD44Game()) {
                 game.Run();
+            }
         }
     }
 }
