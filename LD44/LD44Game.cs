@@ -6,6 +6,7 @@ using Ruut.Content;
 using Ruut.Graphics;
 using Ruut.Input;
 using Ruut.Screens;
+using System;
 
 namespace LD44 {
     public sealed class LD44Game : Game {
@@ -40,6 +41,10 @@ namespace LD44 {
 
             Window.Title = GameProperties.Name;
             Window.AllowUserResizing = true;
+
+            _inputBindings.Set("move_left", new KeyboardBinding(Keys.Left));
+            _inputBindings.Set("move_right", new KeyboardBinding(Keys.Right));
+            _inputBindings.Set("jump", new KeyboardBinding(Keys.Space));
 
             base.Initialize();
         }
