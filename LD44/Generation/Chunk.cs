@@ -58,14 +58,17 @@ namespace LD44.Generation {
         }
 
         private static ChunkTile GetChunkTile(Color color) {
+            if (color == Color.Black) {
+                return ChunkTile.Rock;
+            }
             return ChunkTile.Air;
         }
 
         private static SideStatus GetSideStatus(Color color) {
-            if (color == Color.Green) {
+            if (color.G == 255) {
                 return SideStatus.Open;
             }
-            if (color == Color.Red) {
+            if (color.R == 255) {
                 return SideStatus.Closed;
             }
             return SideStatus.Edge;

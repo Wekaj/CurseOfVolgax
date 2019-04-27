@@ -57,7 +57,15 @@ namespace LD44.Generation {
         }
 
         private static void InitializeTile(Level level, int x, int y, ChunkTile tileType) {
+            Tile tile = level.GetTile(x, y);
 
+            switch (tileType) {
+                case ChunkTile.Rock: {
+                    tile.FrontSprite.Texture = "block";
+                    tile.TileType = TileType.Rock;
+                    break;
+                }
+            }
         }
 
         private static void Tunnel(ChunkSides[,] chunkSides, int x, int y, Random random) {
@@ -103,6 +111,9 @@ namespace LD44.Generation {
                 current.Bottom = SideStatus.Open;
                 choiceSides.Top = SideStatus.Open;
             }
+
+            chunkSides[x, y] = current;
+            chunkSides[x + choice.X, y + choice.Y] = choiceSides; 
 
             Tunnel(chunkSides, x + choice.X, y + choice.Y, random);
         }

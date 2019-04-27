@@ -45,12 +45,13 @@ namespace LD44 {
             _inputBindings.Set("move_left", new KeyboardBinding(Keys.Left));
             _inputBindings.Set("move_right", new KeyboardBinding(Keys.Right));
             _inputBindings.Set("jump", new KeyboardBinding(Keys.Space));
+            _inputBindings.Set("interact", new KeyboardBinding(Keys.Up));
 
             base.Initialize();
         }
 
         protected override void LoadContent() {
-            _screens.Push(new GameScreen());
+            _screens.Push(new GameScreen(this));
         }
 
         protected override void UnloadContent() {

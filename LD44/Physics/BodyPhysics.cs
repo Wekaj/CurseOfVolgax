@@ -4,8 +4,8 @@
             body.Velocity += body.Acceleration * delta;
 
             float speed = body.Velocity.Length();
-            if (speed > 20f) {
-                body.Velocity = body.Velocity * 20f / speed;
+            if (speed > 17.5f) {
+                body.Velocity = body.Velocity * 17.5f / speed;
             }
 
             body.Position += body.Velocity * delta;

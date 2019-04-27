@@ -19,6 +19,7 @@ namespace LD44.Levels {
         public int Height => _tiles.GetLength(1);
 
         public IList<IMob> Mobs { get; } = new List<IMob>();
+        public IList<Interactable> Interactables { get; } = new List<Interactable>();
 
         public Tile GetTile(int x, int y) {
             return _tiles[x, y];

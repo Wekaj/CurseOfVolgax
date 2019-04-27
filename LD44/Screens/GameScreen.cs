@@ -1,8 +1,11 @@
-﻿using LD44.Levels;
+﻿using LD44.Generation;
+using LD44.Levels;
 using LD44.Mobs;
 using LD44.Physics;
+using LD44.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ruut;
 using Ruut.Graphics;
 using Ruut.Input;
 using Ruut.Screens;
@@ -10,14 +13,19 @@ using System;
 
 namespace LD44.Screens {
     public sealed class GameScreen : IScreen {
+        private readonly LD44Game _game;
+
         private readonly RendererSettings _worldSettings = new RendererSettings {
-            SamplerState = SamplerState.PointClamp
+            SamplerState = SamplerState.PointClamp,
+            OriginMode = OriginMode.Relative
         };
         private readonly RendererSettings _uiSettings = new RendererSettings {
             SamplerState = SamplerState.PointClamp,
             OriginMode = OriginMode.Relative
         };
         private readonly Camera _camera = new Camera();
+
+        private readonly SpriteFont _normalFont;
 
         private IMob _playerMob;
 
@@ -26,32 +34,41 @@ namespace LD44.Screens {
 
         private float _timer = 60f;
 
-        public GameScreen() {
+        private string _message = null;
+        private Text _displayMessage = new Text("normal", "") { Color = Color.White, Origin = new Vector2(0.5f) };
+        private float _messageTimer = 0f;
+        private int _messageChar = 0;
+        private Vector2 _messageSource;
+
+        public GameScreen(LD44Game game) {
+            _game = game;
+            _normalFont = _game.Content.Load<SpriteFont>("Fonts/normal");
+
             var random = new Random();
-            bool was = false;
-            for (int y = 0; y < Level.Height; y++) {
-                for (int x = 0; x < Level.Width; x++) {
-                    if (was && random.Next(4) > 0
-                        || !was && random.Next(4) == 0) {
-                        Level.GetTile(x, y).FrontSprite.Texture = "block";
-                        Level.GetTile(x, y).TileType = TileType.Rock;
-                        was = true;
-                    }
-                    else {
-                        was = false;
-                    }
-                }
-            }
+            Level = Generator.GenerateLevel(4, 4, ChunkSet.FromTexture(game.Content.Load<Texture2D>("Levels/jungle"), 15), false, random);
 
             _playerMob = new PlayerMob();
+            _playerMob.Body.Position = new Vector2(3f);
             Level.Mobs.Add(_playerMob);
+
+            var talker = new Interactable {
+                Position = new Vector2(11.5f),
+                Region = new RectangleF(0f, 0f, 1f, 1f),
+
+                InteractableType = InteractableType.Message,
+
+                Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You are quite the fool, young one."
+            };
+            talker.Sprite.Texture = "trader";
+            talker.Sprite.Origin = new Vector2(0.5f);
+            Level.Interactables.Add(talker);
         }
 
         public event ScreenEventHandler ReplacedSelf;
         public event ScreenEventHandler PushedScreen;
         public event EventHandler PoppedSelf;
 
-        public Level Level { get; } = new Level(32, 32);
+        public Level Level { get; }
 
         public void HandleInput(InputState inputState, InputBindings bindings) {
             _movement = Vector2.Zero;
@@ -64,6 +81,37 @@ namespace LD44.Screens {
 
             if (bindings.JustPressed("jump")) {
                 _playerMob.Body.Velocity -= new Vector2(0f, 11.5f);
+            }
+
+            if (bindings.JustPressed("interact")) {
+                Interactable interacting = null;
+
+                RectangleF playerRegion = _playerMob.Body.Bounds;
+                playerRegion.X = _playerMob.Body.Position.X - _playerMob.Body.Bounds.Width / 2f;
+                playerRegion.Y = _playerMob.Body.Position.Y - _playerMob.Body.Bounds.Height / 2f;
+                foreach (Interactable interactable in Level.Interactables) {
+                    RectangleF region = interactable.Region;
+                    region.X = interactable.Position.X - region.Width / 2f;
+                    region.Y = interactable.Position.Y - region.Height / 2f;
+
+                    if (region.Intersects(playerRegion)) {
+                        interacting = interactable;
+                        break;
+                    }
+                }
+
+                if (interacting != null) {
+                    switch (interacting.InteractableType) {
+                        case InteractableType.Message: {
+                            _message = TextUtilities.WrapText(_normalFont, interacting.Message, 256f);
+                            _displayMessage.Contents = "";
+                            _messageTimer = 0f;
+                            _messageChar = 0;
+                            _messageSource = interacting.Position;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -92,6 +140,21 @@ namespace LD44.Screens {
             _worldSettings.TransformMatrix = _camera.GetTransformMatrix();
 
             _timer -= delta;
+
+            if (_message != null && _displayMessage.Contents.Length < _message.Length) {
+                _messageTimer += delta;
+
+                while (_messageTimer >= 0.075f) {
+                    _messageTimer -= 0.075f;
+
+                    _messageChar++;
+                    _displayMessage.Contents = _message.Substring(0, _messageChar);
+                }
+            }
+
+            if (Vector2.Distance(_playerMob.Body.Position, _messageSource) > 3f) {
+                _message = null;
+            }
         }
 
         public void Draw(Renderer renderer) {
@@ -108,7 +171,42 @@ namespace LD44.Screens {
                 }
             }
 
-            renderer.Draw(_playerMob.Sprite, _playerMob.Body.Position * GameProperties.TileSize);
+            if (_message != null) {
+                renderer.Draw(new Sprite("pixel") {
+                    Color = Color.Black,
+                    Scale = _normalFont.MeasureString(_displayMessage.Contents) + new Vector2(6f),
+                    Origin = new Vector2(0.5f)
+                }, _messageSource * GameProperties.TileSize - new Vector2(0f, 20f));
+                renderer.Draw(_displayMessage, _messageSource * GameProperties.TileSize - new Vector2(0f, 20f));
+            }
+
+            foreach (Interactable interactable in Level.Interactables) {
+                renderer.Draw(interactable.Sprite, interactable.Position * GameProperties.TileSize);
+            }
+
+            foreach (IMob mob in Level.Mobs) {
+                renderer.Draw(mob.Sprite, mob.Body.Position * GameProperties.TileSize);
+            }
+            
+            bool canInteract = false;
+
+            RectangleF playerRegion = _playerMob.Body.Bounds;
+            playerRegion.X = _playerMob.Body.Position.X - _playerMob.Body.Bounds.Width / 2f;
+            playerRegion.Y = _playerMob.Body.Position.Y - _playerMob.Body.Bounds.Height / 2f;
+            foreach (Interactable interactable in Level.Interactables) {
+                RectangleF region = interactable.Region;
+                region.X = interactable.Position.X - region.Width / 2f;
+                region.Y = interactable.Position.Y - region.Height / 2f;
+
+                if (region.Intersects(playerRegion)) {
+                    canInteract = true;
+                    break;
+                }
+            }
+
+            if (canInteract) {
+                renderer.Draw(new Sprite("arrow_up"), _playerMob.Body.Position * GameProperties.TileSize - new Vector2(6f, 24f));
+            }
 
             renderer.End();
 
