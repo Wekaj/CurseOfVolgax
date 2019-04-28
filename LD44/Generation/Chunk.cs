@@ -5,7 +5,10 @@ namespace LD44.Generation {
     public enum ChunkTile {
         Air,
         Rock,
-        Bat
+        Bat,
+        Player,
+        Door,
+        Greeter
     }
 
     public sealed class Chunk {
@@ -64,6 +67,15 @@ namespace LD44.Generation {
             }
             else if (Matches(color, 255, 0, 0)) {
                 return ChunkTile.Bat;
+            }
+            else if (Matches(color, 0, 255, 0)) {
+                return ChunkTile.Player;
+            }
+            else if (Matches(color, 0, 0, 255)) {
+                return ChunkTile.Door;
+            }
+            else if (Matches(color, 255, 255, 0)) {
+                return ChunkTile.Greeter;
             }
             return ChunkTile.Air;
         }

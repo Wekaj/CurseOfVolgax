@@ -1,4 +1,5 @@
 ﻿using LD44.Mobs;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
 namespace LD44.Levels {
@@ -20,6 +21,8 @@ namespace LD44.Levels {
 
         public IList<IMob> Mobs { get; } = new List<IMob>();
         public IList<Interactable> Interactables { get; } = new List<Interactable>();
+
+        public Vector2? Entrance { get; set; }
 
         public Tile GetTile(int x, int y) {
             return _tiles[x, y];

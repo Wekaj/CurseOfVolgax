@@ -33,6 +33,7 @@ namespace LD44 {
 
         public IReadOnlyDictionary<string, IAnimation<Sprite>> SpriteAnimations => _spriteAnimations;
 
+        public LevelTemplate EntranceTemplate { get; private set; }
         public LevelTemplate JungleTemplate { get; private set; }
 
         protected override void Initialize() {
@@ -65,9 +66,10 @@ namespace LD44 {
         }
 
         protected override void LoadContent() {
+            EntranceTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/entrance"), 2), 2, 1, true);
             JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle"), 15), 4, 4, false);
 
-            _screens.Push(new GameScreen(this, JungleTemplate));
+            _screens.Push(new GameScreen(this, EntranceTemplate));
         }
 
         protected override void UnloadContent() {

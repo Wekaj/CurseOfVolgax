@@ -54,8 +54,10 @@
     <Compile Include="Levels\LevelTemplate.cs" />
     <Compile Include="Levels\Tile.cs" />
     <Compile Include="Mobs\BatMob.cs" />
+    <Compile Include="Mobs\CollisionType.cs" />
     <Compile Include="Mobs\IMob.cs" />
     <Compile Include="Mobs\PlayerMob.cs" />
+    <Compile Include="Mobs\StarMob.cs" />
     <Compile Include="Physics\Body.cs" />
     <Compile Include="Physics\BodyPhysics.cs" />
     <Compile Include="Physics\TilePhysics.cs" />

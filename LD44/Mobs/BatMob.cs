@@ -16,6 +16,7 @@ namespace LD44.Mobs {
         public Body Body { get; } = new Body(new RectangleF(0f, 0f, 0.3f, 0.3f));
         public AnimationState<Sprite> Animation { get; set; }
         public bool Gravity { get; set; } = false;
+        public CollisionType CollisionType { get; set; } = CollisionType.Stun;
 
         public void Update(float delta) {
             if (Body.Contact.X < 0f) {

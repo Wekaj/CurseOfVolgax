@@ -12,5 +12,7 @@ namespace LD44.Physics {
         public Vector2 Velocity { get; set; }
         public Vector2 Acceleration { get; set; }
         public Vector2 Contact { get; set; }
+        public bool Bouncy { get; set; } = false;
+        public float BounceFactor { get; set; } = 1f;
     }
 }

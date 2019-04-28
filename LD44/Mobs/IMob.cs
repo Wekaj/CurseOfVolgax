@@ -8,6 +8,7 @@ namespace LD44.Mobs {
         Body Body { get; }
         AnimationState<Sprite> Animation { get; set; }
         bool Gravity { get; set; }
+        CollisionType CollisionType { get; set; }
 
         void Update(float delta);
     }

@@ -30,7 +30,7 @@ namespace LD44.Screens {
 
         private readonly SpriteFont _normalFont;
 
-        private IMob _playerMob;
+        private PlayerMob _playerMob;
 
         private Vector2 _movement;
         private bool _climbing = false;
@@ -51,34 +51,10 @@ namespace LD44.Screens {
 
             _playerMob = new PlayerMob();
             _playerMob.Body.Position = new Vector2(3f);
+            if (Level.Entrance != null) {
+                _playerMob.Body.Position = Level.Entrance.Value;
+            }
             Level.Mobs.Add(_playerMob);
-
-            var talker = new Interactable {
-                Position = new Vector2(11.5f),
-                Region = new RectangleF(0f, 0f, 1f, 1f),
-
-                InteractableType = InteractableType.Message,
-
-                Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You are quite the fool, young one."
-            };
-            talker.Animation = new AnimationState<Sprite>(_game.SpriteAnimations["trader_idle"], 0.5f) {
-                IsLooping = true
-            };
-            talker.Sprite.Texture = "trader";
-            talker.Sprite.Origin = new Vector2(0.5f);
-            Level.Interactables.Add(talker);
-
-            var door = new Interactable {
-                Position = new Vector2(9.5f, 11.5f),
-                Region = new RectangleF(0f, 0f, 1f, 1f),
-
-                InteractableType = InteractableType.Door,
-
-                Destination = _game.JungleTemplate
-            };
-            door.Sprite.Texture = "door";
-            door.Sprite.Origin = new Vector2(0.5f);
-            Level.Interactables.Add(door);
         }
 
         public event ScreenEventHandler ReplacedSelf;

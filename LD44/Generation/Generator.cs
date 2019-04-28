@@ -1,6 +1,7 @@
 ﻿using LD44.Levels;
 using LD44.Mobs;
 using Microsoft.Xna.Framework;
+using Ruut;
 using Ruut.Animation;
 using Ruut.Graphics;
 using System;
@@ -15,15 +16,23 @@ namespace LD44.Generation {
         public static Level GenerateLevel(LD44Game game, int width, int height, ChunkSet chunkSet, bool sky, Random random) {
             ChunkSides[,] chunkSides = new ChunkSides[width, height];
 
-            chunkSides[0, 0].Right = SideStatus.Open;
-            chunkSides[1, 0].Left = SideStatus.Open;
-            chunkSides[0, 0].Bottom = SideStatus.Closed;
-            chunkSides[0, 1].Top = SideStatus.Closed;
+            if (width > 1) {
+                chunkSides[0, 0].Right = SideStatus.Open;
+                chunkSides[1, 0].Left = SideStatus.Open;
+            }
+            if (height > 1) {
+                chunkSides[0, 0].Bottom = SideStatus.Closed;
+                chunkSides[0, 1].Top = SideStatus.Closed;
+            }
 
-            chunkSides[width - 1, height - 1].Left = SideStatus.Open;
-            chunkSides[width - 2, height - 1].Right = SideStatus.Open;
-            chunkSides[width - 1, height - 1].Top = SideStatus.Closed;
-            chunkSides[width - 1, height - 2].Bottom = SideStatus.Closed;
+            if (width > 1) {
+                chunkSides[width - 1, height - 1].Left = SideStatus.Open;
+                chunkSides[width - 2, height - 1].Right = SideStatus.Open;
+            }
+            if (height > 1) {
+                chunkSides[width - 1, height - 1].Top = SideStatus.Closed;
+                chunkSides[width - 1, height - 2].Bottom = SideStatus.Closed;
+            }
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -80,6 +89,41 @@ namespace LD44.Generation {
                     };
                     bat.Body.Position = new Vector2(x, y) + new Vector2(0.5f);
                     level.Mobs.Add(bat);
+                    break;
+                }
+                case ChunkTile.Player: {
+                    level.Entrance = new Vector2(x + 0.5f, y + 0.5f);
+                    break;
+                }
+                case ChunkTile.Door: {
+                    var door = new Interactable {
+                        Position = new Vector2(x, y) + new Vector2(0.5f),
+                        Region = new RectangleF(0f, 0f, 1f, 1f),
+
+                        InteractableType = InteractableType.Door,
+
+                        Destination = game.JungleTemplate
+                    };
+                    door.Sprite.Texture = "door";
+                    door.Sprite.Origin = new Vector2(0.5f);
+                    level.Interactables.Add(door);
+                    break;
+                }
+                case ChunkTile.Greeter: {
+                    var talker = new Interactable {
+                        Position = new Vector2(x, y) + new Vector2(0.5f),
+                        Region = new RectangleF(0f, 0f, 1f, 1f),
+
+                        InteractableType = InteractableType.Message,
+
+                        Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You are quite the fool, young one."
+                    };
+                    talker.Animation = new AnimationState<Sprite>(game.SpriteAnimations["trader_idle"], 0.5f) {
+                        IsLooping = true
+                    };
+                    talker.Sprite.Texture = "trader";
+                    talker.Sprite.Origin = new Vector2(0.5f);
+                    level.Interactables.Add(talker);
                     break;
                 }
             }

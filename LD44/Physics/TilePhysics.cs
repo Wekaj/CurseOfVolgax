@@ -39,22 +39,42 @@ namespace LD44.Physics {
 
                 if (leftOverlap < rightOverlap && leftOverlap < topOverlap && leftOverlap < bottomOverlap) {
                     body.Position = new Vector2(tile.X - halfWidth, body.Position.Y);
-                    body.Velocity = new Vector2(Math.Min(body.Velocity.X, 0f), body.Velocity.Y);
+                    if (!body.Bouncy) {
+                        body.Velocity = new Vector2(Math.Min(body.Velocity.X, 0f), body.Velocity.Y);
+                    }
+                    else {
+                        body.Velocity = new Vector2(-body.Velocity.X * body.BounceFactor, body.Velocity.Y);
+                    }
                     contact.X++;
                 }
                 else if (rightOverlap < topOverlap && rightOverlap < bottomOverlap) {
                     body.Position = new Vector2(tile.X + 1f + halfWidth, body.Position.Y);
-                    body.Velocity = new Vector2(Math.Max(body.Velocity.X, 0f), body.Velocity.Y);
+                    if (!body.Bouncy) {
+                        body.Velocity = new Vector2(Math.Max(body.Velocity.X, 0f), body.Velocity.Y);
+                    }
+                    else {
+                        body.Velocity = new Vector2(-body.Velocity.X * body.BounceFactor, body.Velocity.Y);
+                    }
                     contact.X--;
                 }
                 else if (topOverlap < bottomOverlap) {
                     body.Position = new Vector2(body.Position.X, tile.Y - halfHeight);
-                    body.Velocity = new Vector2(body.Velocity.X, Math.Min(body.Velocity.Y, 0f));
+                    if (!body.Bouncy) {
+                        body.Velocity = new Vector2(body.Velocity.X, Math.Min(body.Velocity.Y, 0f));
+                    }
+                    else {
+                        body.Velocity = new Vector2(body.Velocity.Y, -body.Velocity.Y * body.BounceFactor);
+                    }
                     contact.Y++;
                 }
                 else {
                     body.Position = new Vector2(body.Position.X, tile.Y + 1f + halfHeight);
-                    body.Velocity = new Vector2(body.Velocity.X, Math.Max(body.Velocity.Y, 0f));
+                    if (!body.Bouncy) {
+                        body.Velocity = new Vector2(body.Velocity.X, Math.Max(body.Velocity.Y, 0f));
+                    }
+                    else {
+                        body.Velocity = new Vector2(body.Velocity.Y, -body.Velocity.Y * body.BounceFactor);
+                    }
                     contact.Y--;
                 }
             }
