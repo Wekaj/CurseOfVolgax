@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LD44.Generation {
     public enum ChunkTile {
         Air,
-        Rock
+        Rock,
+        Bat
     }
 
     public sealed class Chunk {
@@ -61,17 +62,24 @@ namespace LD44.Generation {
             if (color == Color.Black) {
                 return ChunkTile.Rock;
             }
+            else if (Matches(color, 255, 0, 0)) {
+                return ChunkTile.Bat;
+            }
             return ChunkTile.Air;
         }
 
         private static SideStatus GetSideStatus(Color color) {
-            if (color.G == 255) {
+            if (Matches(color, 0, 255, 0)) {
                 return SideStatus.Open;
             }
-            if (color.R == 255) {
+            if (Matches(color, 255, 0, 0)) {
                 return SideStatus.Closed;
             }
             return SideStatus.Edge;
+        }
+
+        private static bool Matches(Color color, byte r, byte g, byte b, byte a = 255) {
+            return color.R == r && color.G == g && color.B == b && color.A == a;
         }
     }
 }

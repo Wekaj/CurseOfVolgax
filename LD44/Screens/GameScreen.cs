@@ -47,7 +47,7 @@ namespace LD44.Screens {
             _game = game;
             _normalFont = _game.Content.Load<SpriteFont>("Fonts/normal");
 
-            Level = Generator.GenerateLevel(template, _random);
+            Level = Generator.GenerateLevel(game, template, _random);
 
             _playerMob = new PlayerMob();
             _playerMob.Body.Position = new Vector2(3f);
@@ -79,16 +79,6 @@ namespace LD44.Screens {
             door.Sprite.Texture = "door";
             door.Sprite.Origin = new Vector2(0.5f);
             Level.Interactables.Add(door);
-
-            for (int i = 0; i < 200; i++) {
-                var bat = new BatMob {
-                    Animation = new AnimationState<Sprite>(_game.SpriteAnimations["bat_flying"], 0.5f) {
-                        IsLooping = true
-                    }
-                };
-                bat.Body.Position = new Vector2(_random.Next(200), _random.Next(200)) + new Vector2(0.5f);
-                Level.Mobs.Add(bat);
-            }
         }
 
         public event ScreenEventHandler ReplacedSelf;

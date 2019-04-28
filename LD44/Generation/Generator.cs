@@ -1,15 +1,18 @@
 ﻿using LD44.Levels;
+using LD44.Mobs;
 using Microsoft.Xna.Framework;
+using Ruut.Animation;
+using Ruut.Graphics;
 using System;
 using System.Collections.Generic;
 
 namespace LD44.Generation {
     public static class Generator {
-        public static Level GenerateLevel(LevelTemplate template, Random random) {
-            return GenerateLevel(template.Width, template.Height, template.Chunks, template.Sky, random);
+        public static Level GenerateLevel(LD44Game game, LevelTemplate template, Random random) {
+            return GenerateLevel(game, template.Width, template.Height, template.Chunks, template.Sky, random);
         }
 
-        public static Level GenerateLevel(int width, int height, ChunkSet chunkSet, bool sky, Random random) {
+        public static Level GenerateLevel(LD44Game game, int width, int height, ChunkSet chunkSet, bool sky, Random random) {
             ChunkSides[,] chunkSides = new ChunkSides[width, height];
 
             chunkSides[0, 0].Right = SideStatus.Open;
@@ -51,7 +54,7 @@ namespace LD44.Generation {
 
                     for (int y2 = 0; y2 < chunkSet.Height; y2++) {
                         for (int x2 = 0; x2 < chunkSet.Width; x2++) {
-                            InitializeTile(level, x * chunkSet.Width + x2, y * chunkSet.Height + y2, chunk[x2, y2]);
+                            InitializeTile(game, level, x * chunkSet.Width + x2, y * chunkSet.Height + y2, chunk[x2, y2]);
                         }
                     }
                 }
@@ -60,13 +63,23 @@ namespace LD44.Generation {
             return level;
         }
 
-        private static void InitializeTile(Level level, int x, int y, ChunkTile tileType) {
+        private static void InitializeTile(LD44Game game, Level level, int x, int y, ChunkTile tileType) {
             Tile tile = level.GetTile(x, y);
 
             switch (tileType) {
                 case ChunkTile.Rock: {
                     tile.FrontSprite.Texture = "block";
                     tile.TileType = TileType.Rock;
+                    break;
+                }
+                case ChunkTile.Bat: {
+                    var bat = new BatMob {
+                        Animation = new AnimationState<Sprite>(game.SpriteAnimations["bat_flying"], 0.5f) {
+                            IsLooping = true
+                        }
+                    };
+                    bat.Body.Position = new Vector2(x, y) + new Vector2(0.5f);
+                    level.Mobs.Add(bat);
                     break;
                 }
             }
