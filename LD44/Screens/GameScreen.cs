@@ -6,6 +6,7 @@ using LD44.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ruut;
+using Ruut.Animation;
 using Ruut.Graphics;
 using Ruut.Input;
 using Ruut.Screens;
@@ -13,6 +14,8 @@ using System;
 
 namespace LD44.Screens {
     public sealed class GameScreen : IScreen {
+        private readonly Random _random = new Random();
+
         private readonly LD44Game _game;
 
         private readonly RendererSettings _worldSettings = new RendererSettings {
@@ -40,12 +43,11 @@ namespace LD44.Screens {
         private int _messageChar = 0;
         private Vector2 _messageSource;
 
-        public GameScreen(LD44Game game) {
+        public GameScreen(LD44Game game, LevelTemplate template) {
             _game = game;
             _normalFont = _game.Content.Load<SpriteFont>("Fonts/normal");
 
-            var random = new Random();
-            Level = Generator.GenerateLevel(4, 4, ChunkSet.FromTexture(game.Content.Load<Texture2D>("Levels/jungle"), 15), false, random);
+            Level = Generator.GenerateLevel(template, _random);
 
             _playerMob = new PlayerMob();
             _playerMob.Body.Position = new Vector2(3f);
@@ -59,9 +61,24 @@ namespace LD44.Screens {
 
                 Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You are quite the fool, young one."
             };
+            talker.Animation = new AnimationState<Sprite>(_game.SpriteAnimations["trader_idle"], 0.5f) {
+                IsLooping = true
+            };
             talker.Sprite.Texture = "trader";
             talker.Sprite.Origin = new Vector2(0.5f);
             Level.Interactables.Add(talker);
+
+            var door = new Interactable {
+                Position = new Vector2(9.5f, 11.5f),
+                Region = new RectangleF(0f, 0f, 1f, 1f),
+
+                InteractableType = InteractableType.Door,
+
+                Destination = _game.JungleTemplate
+            };
+            door.Sprite.Texture = "door";
+            door.Sprite.Origin = new Vector2(0.5f);
+            Level.Interactables.Add(door);
         }
 
         public event ScreenEventHandler ReplacedSelf;
@@ -110,6 +127,10 @@ namespace LD44.Screens {
                             _messageSource = interacting.Position;
                             break;
                         }
+                        case InteractableType.Door: {
+                            ReplacedSelf?.Invoke(this, new ScreenEventArgs(new GameScreen(_game, interacting.Destination)));
+                            break;
+                        }
                     }
                 }
             }
@@ -155,6 +176,12 @@ namespace LD44.Screens {
             if (Vector2.Distance(_playerMob.Body.Position, _messageSource) > 3f) {
                 _message = null;
             }
+
+            foreach (Interactable interactable in Level.Interactables) {
+                if (interactable.Animation != null) {
+                    interactable.Animation.Update(delta);
+                }
+            }
         }
 
         public void Draw(Renderer renderer) {
@@ -181,6 +208,10 @@ namespace LD44.Screens {
             }
 
             foreach (Interactable interactable in Level.Interactables) {
+                if (interactable.Animation != null) {
+                    interactable.Animation.Apply(interactable.Sprite);
+                }
+
                 renderer.Draw(interactable.Sprite, interactable.Position * GameProperties.TileSize);
             }
 

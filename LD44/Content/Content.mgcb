@@ -68,6 +68,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/block.png
 
+#begin Textures/door.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/door.png
+
 #begin Textures/empty.png
 /importer:TextureImporter
 /processor:TextureProcessor

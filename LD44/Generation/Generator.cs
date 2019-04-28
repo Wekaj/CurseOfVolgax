@@ -5,6 +5,10 @@ using System.Collections.Generic;
 
 namespace LD44.Generation {
     public static class Generator {
+        public static Level GenerateLevel(LevelTemplate template, Random random) {
+            return GenerateLevel(template.Width, template.Height, template.Chunks, template.Sky, random);
+        }
+
         public static Level GenerateLevel(int width, int height, ChunkSet chunkSet, bool sky, Random random) {
             ChunkSides[,] chunkSides = new ChunkSides[width, height];
 

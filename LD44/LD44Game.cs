@@ -1,18 +1,23 @@
-﻿using LD44.Screens;
+﻿using LD44.Generation;
+using LD44.Levels;
+using LD44.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ruut.Animation;
 using Ruut.Content;
 using Ruut.Graphics;
 using Ruut.Input;
 using Ruut.Screens;
 using System;
+using System.Collections.Generic;
 
 namespace LD44 {
     public sealed class LD44Game : Game {
         private readonly GraphicsDeviceManager _graphics;
         private readonly ScreenStack _screens;
         private readonly InputBindings _inputBindings;
+        private readonly Dictionary<string, IAnimation<Sprite>> _spriteAnimations = new Dictionary<string, IAnimation<Sprite>>();
 
         private Renderer _renderer;
         private RenderTarget2D _renderTarget;
@@ -25,6 +30,10 @@ namespace LD44 {
 
             Content.RootDirectory = "Content";
         }
+
+        public IReadOnlyDictionary<string, IAnimation<Sprite>> SpriteAnimations => _spriteAnimations;
+
+        public LevelTemplate JungleTemplate { get; private set; }
 
         protected override void Initialize() {
             _graphics.PreferredBackBufferWidth = GameProperties.Width * 2;
@@ -47,11 +56,16 @@ namespace LD44 {
             _inputBindings.Set("jump", new KeyboardBinding(Keys.Space));
             _inputBindings.Set("interact", new KeyboardBinding(Keys.Up));
 
+            _spriteAnimations.Add("trader_idle", new FixedFrameAnimation("trader", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
+
             base.Initialize();
         }
 
         protected override void LoadContent() {
-            _screens.Push(new GameScreen(this));
+            JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle"), 15), 4, 4, false);
+
+            _screens.Push(new GameScreen(this, JungleTemplate));
         }
 
         protected override void UnloadContent() {
