@@ -66,8 +66,8 @@ namespace LD44 {
         }
 
         protected override void LoadContent() {
-            EntranceTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/entrance"), 2), 2, 1, true);
-            JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle"), 15), 4, 4, false);
+            EntranceTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/entrance"), 2), 2, 1, true, "bg_entrance");
+            JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle"), 15), 4, 4, false, "empty");
 
             _screens.Push(new GameScreen(this, EntranceTemplate));
         }

@@ -72,8 +72,9 @@ namespace LD44.Screens {
                 _movement.X--;
             }
 
-            if (bindings.JustPressed("jump")) {
+            if (bindings.JustPressed("jump") && (_playerMob.Body.Contact.Y > 0f || _playerMob.LenienceTimer > 0f)) {
                 _playerMob.Body.Velocity -= new Vector2(0f, 11.5f);
+                _playerMob.LenienceTimer = 0f;
             }
 
             if (bindings.JustPressed("interact")) {
@@ -115,6 +116,13 @@ namespace LD44.Screens {
         public void Update(GameTime gameTime) {
             float delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            if (_playerMob.Body.Contact.Y > 0f) {
+                _playerMob.LenienceTimer = 0.1f;
+            }
+            else if (_playerMob.LenienceTimer > 0f) {
+                _playerMob.LenienceTimer -= delta;
+            }
+
             _playerMob.Body.Position += _movement * 6.5f * delta;
 
             _movement = Vector2.Zero;
@@ -142,6 +150,13 @@ namespace LD44.Screens {
 
             _camera.Position = _playerMob.Body.Position * GameProperties.TileSize 
                 - new Vector2(GameProperties.Width, GameProperties.Height) / _camera.Zoom / 2f;
+
+            Vector2 camPos = _camera.Position;
+            camPos.X = Math.Max(camPos.X, 0f);
+            camPos.Y = Math.Max(camPos.Y, 0f);
+            camPos.X = Math.Min(camPos.X, Level.Width * GameProperties.TileSize - GameProperties.Width);
+            camPos.Y = Math.Min(camPos.Y, Level.Height * GameProperties.TileSize - GameProperties.Height);
+            _camera.Position = camPos;
 
             _worldSettings.TransformMatrix = _camera.GetTransformMatrix();
 
@@ -173,6 +188,16 @@ namespace LD44.Screens {
         public void Draw(Renderer renderer) {
             renderer.Begin(_worldSettings);
 
+            float regionWidth = Level.Width * GameProperties.TileSize;
+            float regionHeight = Level.Height * GameProperties.TileSize;
+
+            float dx = _camera.Position.X / (regionWidth - GameProperties.Width);
+            float dy = _camera.Position.Y / (regionHeight - GameProperties.Height);
+
+            Texture2D bgTexture = _game.Content.Load<Texture2D>("Textures/" + Level.Background.Texture);
+
+            renderer.Draw(Level.Background, new Vector2(dx * -(bgTexture.Width - regionWidth), dy * -(bgTexture.Height - regionHeight)));
+
             for (int y = 0; y < Level.Height; y++) {
                 for (int x = 0; x < Level.Width; x++) {
                     renderer.Draw(Level.GetTile(x, y).BackSprite, new Vector2(x, y) * GameProperties.TileSize);
@@ -184,17 +209,38 @@ namespace LD44.Screens {
                 }
             }
 
-            if (_message != null) {
-                renderer.Draw(new Sprite("pixel") {
-                    Color = Color.Black,
-                    Scale = _normalFont.MeasureString(_displayMessage.Contents) + new Vector2(6f),
-                    Origin = new Vector2(0.5f)
-                }, _messageSource * GameProperties.TileSize - new Vector2(0f, 20f));
-                renderer.Draw(_displayMessage, _messageSource * GameProperties.TileSize - new Vector2(0f, 20f));
-            }
-
             foreach (Interactable interactable in Level.Interactables) {
                 renderer.Draw(interactable.Sprite, interactable.Position * GameProperties.TileSize);
+            }
+
+            if (_message != null) {
+                Vector2 textSize = _normalFont.MeasureString(_displayMessage.Contents);
+                Vector2 borderSize = textSize + new Vector2(6f);
+
+                Vector2 center = _messageSource * GameProperties.TileSize - new Vector2(0f, 30f);
+
+                float cameraRight = _camera.Position.X + GameProperties.Width;
+                float cameraBottom = _camera.Position.Y + GameProperties.Height;
+
+                if (center.X - borderSize.X / 2f < _camera.Position.X + 3f) {
+                    center.X = _camera.Position.X + borderSize.X / 2f + 3f;
+                }
+                if (center.Y - borderSize.Y / 2f < _camera.Position.Y + 3f) {
+                    center.Y = _camera.Position.Y + borderSize.Y / 2f + 3f;
+                }
+                if (center.X + borderSize.X / 2f > cameraRight - 3f) {
+                    center.X = cameraRight - borderSize.X / 2f - 3f;
+                }
+                if (center.Y + borderSize.Y / 2f > cameraBottom - 3f) {
+                    center.Y = cameraRight - borderSize.Y / 2f - 3f;
+                }
+
+                renderer.Draw(new Sprite("pixel") {
+                    Color = Color.Black,
+                    Scale = borderSize,
+                    Origin = new Vector2(0.5f)
+                }, center);
+                renderer.Draw(_displayMessage, center);
             }
 
             foreach (IMob mob in Level.Mobs) {

@@ -14,6 +14,7 @@ namespace LD44.Mobs {
         public AnimationState<Sprite> Animation { get; set; }
         public bool Gravity { get; set; } = true;
         public CollisionType CollisionType { get; set; }
+        public float LenienceTimer { get; set; }
 
         public void Update(float delta) {
         }

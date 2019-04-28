@@ -3,7 +3,7 @@
 namespace LD44.Levels {
     public enum TileType {
         Air,
-        Rock
+        Solid
     }
 
     public sealed class Tile {

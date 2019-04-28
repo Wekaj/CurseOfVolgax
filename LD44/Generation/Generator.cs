@@ -10,10 +10,10 @@ using System.Collections.Generic;
 namespace LD44.Generation {
     public static class Generator {
         public static Level GenerateLevel(LD44Game game, LevelTemplate template, Random random) {
-            return GenerateLevel(game, template.Width, template.Height, template.Chunks, template.Sky, random);
+            return GenerateLevel(game, template.Width, template.Height, template.Chunks, template.Sky, template.Background, random);
         }
 
-        public static Level GenerateLevel(LD44Game game, int width, int height, ChunkSet chunkSet, bool sky, Random random) {
+        public static Level GenerateLevel(LD44Game game, int width, int height, ChunkSet chunkSet, bool sky, string background, Random random) {
             ChunkSides[,] chunkSides = new ChunkSides[width, height];
 
             if (width > 1) {
@@ -69,6 +69,32 @@ namespace LD44.Generation {
                 }
             }
 
+            int fullHeight = height * chunkSet.Height;
+            int fullWidth = width * chunkSet.Width;
+            for (int y = 0; y < fullHeight; y++) {
+                for (int x = 0; x < fullWidth; x++) {
+                    Tile tile = level.GetTile(x, y);
+                    
+                    if (tile.TileType != TileType.Solid) {
+                        continue;
+                    }
+
+                    if (y == 0 || level.GetTile(x, y - 1).TileType == TileType.Solid) {
+                        if (y == fullHeight - 1 || level.GetTile(x, y + 1).TileType == TileType.Solid) {
+                            tile.FrontSprite.Texture += "_center";
+                        }
+                        else {
+                            tile.FrontSprite.Texture += "_bottom";
+                        }
+                    }
+                    else {
+                        tile.FrontSprite.Texture += "_top";
+                    }
+                }
+            }
+
+            level.Background.Texture = background;
+
             return level;
         }
 
@@ -77,8 +103,16 @@ namespace LD44.Generation {
 
             switch (tileType) {
                 case ChunkTile.Rock: {
-                    tile.FrontSprite.Texture = "block";
-                    tile.TileType = TileType.Rock;
+                    tile.FrontSprite.Texture = "rock";
+                    tile.TileType = TileType.Solid;
+                    break;
+                }
+                case ChunkTile.RockWall: {
+                    tile.BackSprite.Texture = "rock_wall";
+                    break;
+                }
+                case ChunkTile.Sapling: {
+                    tile.BackSprite.Texture = "sapling";
                     break;
                 }
                 case ChunkTile.Bat: {
@@ -96,6 +130,8 @@ namespace LD44.Generation {
                     break;
                 }
                 case ChunkTile.Door: {
+                    tile.BackSprite.Texture = "rock_wall";
+
                     var door = new Interactable {
                         Position = new Vector2(x, y) + new Vector2(0.5f),
                         Region = new RectangleF(0f, 0f, 1f, 1f),
@@ -116,7 +152,7 @@ namespace LD44.Generation {
 
                         InteractableType = InteractableType.Message,
 
-                        Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You are quite the fool, young one."
+                        Message = "Hohohohoho, you dare enter the domain of Valgox uninvited? You fool!"
                     };
                     talker.Animation = new AnimationState<Sprite>(game.SpriteAnimations["trader_idle"], 0.5f) {
                         IsLooping = true

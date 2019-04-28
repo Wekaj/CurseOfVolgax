@@ -8,7 +8,9 @@ namespace LD44.Generation {
         Bat,
         Player,
         Door,
-        Greeter
+        Greeter,
+        RockWall,
+        Sapling
     }
 
     public sealed class Chunk {
@@ -76,6 +78,12 @@ namespace LD44.Generation {
             }
             else if (Matches(color, 255, 255, 0)) {
                 return ChunkTile.Greeter;
+            }
+            else if (Matches(color, 100, 0, 0)) {
+                return ChunkTile.RockWall;
+            }
+            else if (Matches(color, 0, 0, 100)) {
+                return ChunkTile.Sapling;
             }
             return ChunkTile.Air;
         }

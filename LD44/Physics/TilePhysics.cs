@@ -83,7 +83,7 @@ namespace LD44.Physics {
 
         public static bool IsSolid(TileType tileType) {
             switch (tileType) {
-                case TileType.Rock: {
+                case TileType.Solid: {
                     return true;
                 }
                 default: {
