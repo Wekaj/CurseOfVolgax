@@ -53,6 +53,7 @@
     <Compile Include="Levels\Level.cs" />
     <Compile Include="Levels\LevelTemplate.cs" />
     <Compile Include="Levels\Tile.cs" />
+    <Compile Include="Mobs\BatMob.cs" />
     <Compile Include="Mobs\IMob.cs" />
     <Compile Include="Mobs\PlayerMob.cs" />
     <Compile Include="Physics\Body.cs" />

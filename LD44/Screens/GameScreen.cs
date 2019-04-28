@@ -79,6 +79,16 @@ namespace LD44.Screens {
             door.Sprite.Texture = "door";
             door.Sprite.Origin = new Vector2(0.5f);
             Level.Interactables.Add(door);
+
+            for (int i = 0; i < 200; i++) {
+                var bat = new BatMob {
+                    Animation = new AnimationState<Sprite>(_game.SpriteAnimations["bat_flying"], 0.5f) {
+                        IsLooping = true
+                    }
+                };
+                bat.Body.Position = new Vector2(_random.Next(200), _random.Next(200)) + new Vector2(0.5f);
+                Level.Mobs.Add(bat);
+            }
         }
 
         public event ScreenEventHandler ReplacedSelf;
@@ -144,11 +154,20 @@ namespace LD44.Screens {
             _movement = Vector2.Zero;
 
             foreach (IMob mob in Level.Mobs) {
-                mob.Body.Velocity += new Vector2(0f, 30f) * delta;
+                if (mob.Gravity) {
+                    mob.Body.Velocity += new Vector2(0f, 30f) * delta;
+                }
 
                 BodyPhysics.Update(mob.Body, delta);
 
                 TilePhysics.DoTileCollisions(mob.Body, Level);
+
+                mob.Update(delta);
+
+                if (mob.Animation != null) {
+                    mob.Animation.Update(delta);
+                    mob.Animation.Apply(mob.Sprite);
+                }
             }
 
             if (_timer <= 5f) {
@@ -180,6 +199,7 @@ namespace LD44.Screens {
             foreach (Interactable interactable in Level.Interactables) {
                 if (interactable.Animation != null) {
                     interactable.Animation.Update(delta);
+                    interactable.Animation.Apply(interactable.Sprite);
                 }
             }
         }
@@ -208,10 +228,6 @@ namespace LD44.Screens {
             }
 
             foreach (Interactable interactable in Level.Interactables) {
-                if (interactable.Animation != null) {
-                    interactable.Animation.Apply(interactable.Sprite);
-                }
-
                 renderer.Draw(interactable.Sprite, interactable.Position * GameProperties.TileSize);
             }
 

@@ -58,6 +58,8 @@ namespace LD44 {
 
             _spriteAnimations.Add("trader_idle", new FixedFrameAnimation("trader", 16, 16)
                 .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
+            _spriteAnimations.Add("bat_flying", new FixedFrameAnimation("bat", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(2, 0).AddFrame(3, 0));
 
             base.Initialize();
         }
