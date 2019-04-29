@@ -10,7 +10,24 @@ namespace LD44.Generation {
         Door,
         Greeter,
         RockWall,
-        Sapling
+        Sapling,
+        Leaf,
+        Spikes,
+        Spot,
+        Monkey,
+        EliteBat,
+        Gem,
+        Marble,
+        Angel,
+        Waterfall,
+        Roof,
+        HouseWall,
+        HouseWindow,
+        Villager,
+        Entrance,
+        Exit,
+        Valgox,
+        Curse
     }
 
     public sealed class Chunk {
@@ -84,6 +101,57 @@ namespace LD44.Generation {
             }
             else if (Matches(color, 0, 0, 100)) {
                 return ChunkTile.Sapling;
+            }
+            else if (Matches(color, 50, 50, 50)) {
+                return ChunkTile.Leaf;
+            }
+            else if (Matches(color, 0, 100, 0)) {
+                return ChunkTile.Spikes;
+            }
+            else if (Matches(color, 0, 255, 255)) {
+                return ChunkTile.Spot;
+            }
+            else if (Matches(color, 0, 0, 150)) {
+                return ChunkTile.Monkey;
+            }
+            else if (Matches(color, 150, 0, 0)) {
+                return ChunkTile.EliteBat;
+            }
+            else if (Matches(color, 0, 150, 0)) {
+                return ChunkTile.Gem;
+            }
+            else if (Matches(color, 100, 100, 100)) {
+                return ChunkTile.Marble;
+            }
+            else if (Matches(color, 200, 0, 0)) {
+                return ChunkTile.Angel;
+            }
+            else if (Matches(color, 0, 0, 200)) {
+                return ChunkTile.Waterfall;
+            }
+            else if (Matches(color, 100, 100, 0)) {
+                return ChunkTile.Roof;
+            }
+            else if (Matches(color, 0, 100, 100)) {
+                return ChunkTile.HouseWall;
+            }
+            else if (Matches(color, 100, 0, 100)) {
+                return ChunkTile.HouseWindow;
+            }
+            else if (Matches(color, 150, 100, 100)) {
+                return ChunkTile.Villager;
+            }
+            else if (Matches(color, 150, 100, 150)) {
+                return ChunkTile.Entrance;
+            }
+            else if (Matches(color, 150, 150, 100)) {
+                return ChunkTile.Exit;
+            }
+            else if (Matches(color, 255, 100, 255)) {
+                return ChunkTile.Valgox;
+            }
+            else if (Matches(color, 50, 200, 100)) {
+                return ChunkTile.Curse;
             }
             return ChunkTile.Air;
         }

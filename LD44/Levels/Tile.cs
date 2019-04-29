@@ -1,4 +1,5 @@
-﻿using Ruut.Graphics;
+﻿using Ruut.Animation;
+using Ruut.Graphics;
 
 namespace LD44.Levels {
     public enum TileType {
@@ -11,5 +12,7 @@ namespace LD44.Levels {
 
         public Sprite BackSprite { get; } = new Sprite("empty");
         public Sprite FrontSprite { get; } = new Sprite("empty");
+
+        public AnimationState<Sprite> FrontAnimation { get; set; }
     }
 }

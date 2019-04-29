@@ -1,5 +1,7 @@
-﻿using LD44.Physics;
+﻿using LD44.Levels;
+using LD44.Physics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ruut;
 using Ruut.Animation;
 using Ruut.Graphics;
@@ -15,8 +17,16 @@ namespace LD44.Mobs {
         public bool Gravity { get; set; } = true;
         public CollisionType CollisionType { get; set; }
         public float LenienceTimer { get; set; }
+        public float StunTimer { get; set; }
+        public float CollisionCooldownTimer { get; set; }
+        public bool Dead { get; set; }
+        public bool FacingRight => Sprite.Effects == SpriteEffects.None;
 
-        public void Update(float delta) {
+        public bool Hittable { get; set; }
+        public int Health { get; set; }
+        public float HitCooldown { get; set; }
+
+        public void Update(LD44Game game, Level level, float delta) {
         }
     }
 }

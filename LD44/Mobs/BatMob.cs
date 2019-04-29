@@ -1,4 +1,5 @@
-﻿using LD44.Physics;
+﻿using LD44.Levels;
+using LD44.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ruut;
@@ -17,8 +18,13 @@ namespace LD44.Mobs {
         public AnimationState<Sprite> Animation { get; set; }
         public bool Gravity { get; set; } = false;
         public CollisionType CollisionType { get; set; } = CollisionType.Stun;
+        public bool Dead { get; set; }
 
-        public void Update(float delta) {
+        public bool Hittable { get; set; } = true;
+        public int Health { get; set; } = 10;
+        public float HitCooldown { get; set; }
+
+        public void Update(LD44Game game, Level level, float delta) {
             if (Body.Contact.X < 0f) {
                 _left = false;
             }

@@ -1,11 +1,16 @@
 ﻿using LD44.Levels;
 using Microsoft.Xna.Framework;
+using Ruut;
 using System;
 using System.Collections.Generic;
 
 namespace LD44.Physics {
     public static class TilePhysics {
         public static void DoTileCollisions(Body body, Level level) {
+            if (body.Ghost) {
+                return;
+            }
+
             float halfWidth = body.Bounds.Width / 2f;
             float halfHeight = body.Bounds.Height / 2f;
 
@@ -19,23 +24,43 @@ namespace LD44.Physics {
             int minY = (int)Math.Floor(top);
             int maxY = (int)Math.Floor(bottom);
 
-            var overlapping = new List<Point>();
+            var overlapping = new List<RectangleF>();
+            RectangleF? last = null;
             for (int y = minY; y <= maxY; y++) {
+                last = null;
+
                 for (int x = minX; x <= maxX; x++) {
                     if (level.IsWithinBounds(x, y) && IsSolid(level.GetTile(x, y).TileType)) {
-                        overlapping.Add(new Point(x, y));
+                        if (last != null) {
+                            RectangleF rect = last.Value;
+                            rect.Width++;
+                            last = rect;
+                        }
+                        else {
+                            last = new RectangleF(x, y, 1, 1);
+                        }
+                    }
+                    else {
+                        if (last != null) {
+                            overlapping.Add(last.Value);
+                        }
+                        last = null;
                     }
                 }
+
+                if (last != null) {
+                    overlapping.Add(last.Value);
+                }
             }
-            overlapping.Sort((p1, p2) => Vector2.DistanceSquared(body.Position, new Vector2(p1.X + 0.5f, p1.Y + 0.5f))
-                .CompareTo(Vector2.DistanceSquared(body.Position, new Vector2(p2.X + 0.5f, p2.Y + 0.5f))));
+            overlapping.Sort((r1, r2) => Vector2.DistanceSquared(body.Position, new Vector2(r1.X + r1.Width / 2f, r1.Y + r1.Height / 2f))
+                .CompareTo(Vector2.DistanceSquared(body.Position, new Vector2(r2.X + r2.Width / 2f, r2.Y + r2.Height / 2f))));
 
             Vector2 contact = Vector2.Zero;
-            foreach (Point tile in overlapping) {
+            foreach (RectangleF tile in overlapping) {
                 float leftOverlap = body.Position.X + halfWidth - tile.X;
-                float rightOverlap = tile.X + 1f - (body.Position.X - halfWidth);
+                float rightOverlap = tile.X + tile.Width - (body.Position.X - halfWidth);
                 float topOverlap = body.Position.Y + halfHeight - tile.Y;
-                float bottomOverlap = tile.Y + 1f - (body.Position.Y - halfHeight);
+                float bottomOverlap = tile.Y + tile.Height - (body.Position.Y - halfHeight);
 
                 if (leftOverlap < rightOverlap && leftOverlap < topOverlap && leftOverlap < bottomOverlap) {
                     body.Position = new Vector2(tile.X - halfWidth, body.Position.Y);
@@ -48,7 +73,7 @@ namespace LD44.Physics {
                     contact.X++;
                 }
                 else if (rightOverlap < topOverlap && rightOverlap < bottomOverlap) {
-                    body.Position = new Vector2(tile.X + 1f + halfWidth, body.Position.Y);
+                    body.Position = new Vector2(tile.X + tile.Width + halfWidth, body.Position.Y);
                     if (!body.Bouncy) {
                         body.Velocity = new Vector2(Math.Max(body.Velocity.X, 0f), body.Velocity.Y);
                     }
@@ -68,7 +93,7 @@ namespace LD44.Physics {
                     contact.Y++;
                 }
                 else {
-                    body.Position = new Vector2(body.Position.X, tile.Y + 1f + halfHeight);
+                    body.Position = new Vector2(body.Position.X, tile.Y + tile.Height + halfHeight);
                     if (!body.Bouncy) {
                         body.Velocity = new Vector2(body.Velocity.X, Math.Max(body.Velocity.Y, 0f));
                     }

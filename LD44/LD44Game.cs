@@ -1,5 +1,6 @@
 ﻿using LD44.Generation;
 using LD44.Levels;
+using LD44.Player;
 using LD44.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -34,11 +35,15 @@ namespace LD44 {
         public IReadOnlyDictionary<string, IAnimation<Sprite>> SpriteAnimations => _spriteAnimations;
 
         public LevelTemplate EntranceTemplate { get; private set; }
+        public LevelTemplate TunnelTemplate { get; private set; }
         public LevelTemplate JungleTemplate { get; private set; }
+        public LevelTemplate FountainTemplate { get; private set; }
+        public LevelTemplate VillageTemplate { get; private set; }
+        public LevelTemplate TowerTemplate { get; private set; }
 
         protected override void Initialize() {
-            _graphics.PreferredBackBufferWidth = GameProperties.Width * 2;
-            _graphics.PreferredBackBufferHeight = GameProperties.Height * 2;
+            _graphics.PreferredBackBufferWidth = GameProperties.Width * 3;
+            _graphics.PreferredBackBufferHeight = GameProperties.Height * 3;
             _graphics.ApplyChanges();
 
             _renderer = new Renderer(GraphicsDevice, 
@@ -54,22 +59,57 @@ namespace LD44 {
 
             _inputBindings.Set("move_left", new KeyboardBinding(Keys.Left));
             _inputBindings.Set("move_right", new KeyboardBinding(Keys.Right));
+            _inputBindings.Set("select_up", new KeyboardBinding(Keys.Up));
+            _inputBindings.Set("select_down", new KeyboardBinding(Keys.Down));
             _inputBindings.Set("jump", new KeyboardBinding(Keys.Space));
+            _inputBindings.Set("select", new KeyboardBinding(Keys.Space), new KeyboardBinding(Keys.Z), new KeyboardBinding(Keys.LeftShift));
             _inputBindings.Set("interact", new KeyboardBinding(Keys.Up));
+            _inputBindings.Set("attack", new KeyboardBinding(Keys.Z), new KeyboardBinding(Keys.LeftShift));
+            _inputBindings.Set("restart", new KeyboardBinding(Keys.R));
 
             _spriteAnimations.Add("trader_idle", new FixedFrameAnimation("trader", 16, 16)
                 .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
             _spriteAnimations.Add("bat_flying", new FixedFrameAnimation("bat", 16, 16)
-                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(2, 0).AddFrame(3, 0));
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("elite_bat_flying", new FixedFrameAnimation("elite_bat", 24, 24)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("monkey_idle", new FixedFrameAnimation("monkey", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
+            _spriteAnimations.Add("beggar_idle", new FixedFrameAnimation("beggar", 32, 32)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("gem_idle", new FixedFrameAnimation("gem", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0, 0.05f).AddFrame(2, 0).AddFrame(3, 0, 0.05f));
+            _spriteAnimations.Add("player_dead", new FixedFrameAnimation("player_dead", 16, 16)
+                .AddFrame(0, 0));
+            _spriteAnimations.Add("angel_idle", new FixedFrameAnimation("angel", 32, 32)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
+            _spriteAnimations.Add("waterfall", new FixedFrameAnimation("waterfall", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("villager_idle", new FixedFrameAnimation("villager", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("valgox_idle", new FixedFrameAnimation("valgox", 32, 32)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(3, 0));
+            _spriteAnimations.Add("player_idle", new FixedFrameAnimation("player", 16, 16)
+                .AddFrame(0, 0));
+            _spriteAnimations.Add("player_walking", new FixedFrameAnimation("player_walking", 16, 16)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
+            _spriteAnimations.Add("valgox_aiming", new FixedFrameAnimation("valgox_aiming", 32, 32)
+                .AddFrame(0, 0));
+            _spriteAnimations.Add("projectile", new FixedFrameAnimation("projectile", 12, 12)
+                .AddFrame(0, 0).AddFrame(1, 0).AddFrame(2, 0).AddFrame(1, 0));
 
             base.Initialize();
         }
 
         protected override void LoadContent() {
-            EntranceTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/entrance"), 2), 2, 1, true, "bg_entrance");
-            JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle"), 15), 4, 4, false, "empty");
+            TowerTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/tower"), 1), 1, 1, false, "bg_entrance", null, null);
+            VillageTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/village"), 15), 12, 3, false, "bg_entrance", TowerTemplate, null);
+            FountainTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/fountain"), 2), 2, 1, false, "bg_fountain", VillageTemplate, "Sounds/fountain");
+            JungleTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/jungle2"), 15), 8, 3, false, "bg_jungle", FountainTemplate, "Sounds/jungle");
+            TunnelTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/tunnel"), 2), 2, 1, false, "bg_tunnel", JungleTemplate, null);
+            EntranceTemplate = new LevelTemplate(ChunkSet.FromTexture(Content.Load<Texture2D>("Levels/entrance"), 2), 2, 1, true, "bg_entrance", TunnelTemplate, null);
 
-            _screens.Push(new GameScreen(this, EntranceTemplate));
+            _screens.Push(new StartScreen(this));
         }
 
         protected override void UnloadContent() {

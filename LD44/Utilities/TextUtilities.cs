@@ -24,7 +24,7 @@ namespace LD44.Utilities {
                 }
             }
 
-            return sb.ToString();
+            return sb.ToString().Trim();
         }
     }
 }

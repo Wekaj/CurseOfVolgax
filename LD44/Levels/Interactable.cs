@@ -1,12 +1,17 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD44.Items;
+using Microsoft.Xna.Framework;
 using Ruut;
 using Ruut.Animation;
 using Ruut.Graphics;
+using System.Collections.Generic;
 
 namespace LD44.Levels {
     public enum InteractableType {
         Message,
-        Door
+        Door,
+        Merchant,
+        Blessing,
+        Valgox
     }
 
     public sealed class Interactable {
@@ -20,5 +25,9 @@ namespace LD44.Levels {
         public string Message { get; set; }
 
         public LevelTemplate Destination { get; set; }
+
+        public List<Item> Inventory { get; } = new List<Item>();
+
+        public bool Accepted { get; set; } = false;
     }
 }
